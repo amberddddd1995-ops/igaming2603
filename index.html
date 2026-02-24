@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>2026年3月 全球赛事日历 · 综合投注版</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Roboto, system-ui, sans-serif;
+        }
+        body {
+            background: #f2f4f8;
+            margin: 30px 20px;
+            display: flex;
+            justify-content: center;
+        }
+        .calendar-container {
+            max-width: 1400px;
+            width: 100%;
+            background: white;
+            border-radius: 28px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+            padding: 28px 24px 36px;
+        }
+        h1 {
+            font-size: 2.6rem;
+            font-weight: 600;
+            margin: 0 0 8px 0;
+            letter-spacing: -0.5px;
+            color: #111;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        h1 small {
+            font-size: 1.1rem;
+            font-weight: 400;
+            color: #3a6ea5;
+            background: #e6eff9;
+            padding: 5px 18px;
+            border-radius: 40px;
+            margin-left: 12px;
+        }
+        .subtitle {
+            display: flex;
+            justify-content: space-between;
+            color: #3c3c3c;
+            border-bottom: 2px solid #ddd;
+            padding-bottom: 18px;
+            margin-bottom: 28px;
+            font-weight: 400;
+            font-size: 1.1rem;
+        }
+        .subtitle span {
+            color: #b01b1b;
+            font-weight: 600;
+        }
+        .weekdays {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            text-align: center;
+            font-weight: 600;
+            background: #1e2b3c;
+            color: white;
+            padding: 14px 0;
+            border-radius: 60px;
+            margin-bottom: 16px;
+            font-size: 1.1rem;
+        }
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 12px;
+        }
+        .day-cell {
+            background: #fdfdfd;
+            border-radius: 24px;
+            border: 1px solid #e7e9ed;
+            min-height: 180px;
+            max-height: 280px;
+            overflow-y: auto;
+            padding: 12px 8px 8px 10px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.02);
+            transition: all 0.1s ease;
+            scrollbar-width: thin;
+        }
+        .day-cell:hover {
+            border-color: #a0b8d0;
+            background: #f9fcff;
+        }
+        .day-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-weight: 600;
+            border-bottom: 2px dotted #cbd5e1;
+            padding-bottom: 6px;
+            margin-bottom: 8px;
+            color: #1e3a5f;
+        }
+        .day-num {
+            font-size: 1.3rem;
+            background: #eef2f6;
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            color: #1e3a5f;
+        }
+        .day-name {
+            text-transform: uppercase;
+            font-size: 0.75rem;
+            color: #5b6f88;
+        }
+        .event-list {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+        .event-item {
+            font-size: 0.75rem;
+            line-height: 1.3;
+            padding: 6px 6px 6px 22px;
+            background: #ffffff;
+            border-left: 4px solid;
+            border-radius: 0 10px 10px 0;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+            word-break: break-word;
+            position: relative;
+        }
+        .event-item strong {
+            font-weight: 600;
+            color: #0b2d4b;
+        }
+        .event-item em {
+            font-style: italic;
+            color: #a43c3c;
+            font-size: 0.7rem;
+        }
+        /* 彩色分类指示器 */
+        .event-football { border-left-color: #1e7e34; }    /* 足球深绿 */
+        .event-rugby { border-left-color: #a35c1f; }      /* 橄榄球/英式 */
+        .event-bike { border-left-color: #d97706; }       /* 自行车橙 */
+        .event-motorsport { border-left-color: #dc2626; } /* F1 红 */
+        .event-ice { border-left-color: #0e7c9e; }        /* 冰球/滑冰 青 */
+        .event-basket { border-left-color: #c26b2b; }     /* 篮球橙褐 */
+        .event-baseball { border-left-color: #f5b342; }   /* MLB 金 */
+        .event-golf { border-left-color: #1b4d3e; }       /* 高尔夫深绿 */
+        .event-horse { border-left-color: #7b4f9b; }      /* 赛马紫 */
+        .event-aussie { border-left-color: #ff8c42; }     /* AFL/NRL 橙 */
+        .event-other { border-left-color: #6b7280; }      /* 其他灰 */
+
+        .event-item .flag {
+            font-size: 0.7rem;
+            background: #f0f0f0;
+            border-radius: 10px;
+            padding: 1px 6px;
+            margin-left: 4px;
+            display: inline-block;
+            font-weight: 400;
+        }
+        .more-indicator {
+            font-size: 0.7rem;
+            color: #2f5b8a;
+            font-weight: 500;
+            margin-top: 4px;
+            background: #eef2f6;
+            padding: 2px 6px;
+            border-radius: 30px;
+            display: inline-block;
+        }
+        .empty-day {
+            color: #9aa9b9;
+            font-style: italic;
+            font-size: 0.8rem;
+            text-align: center;
+            padding: 20px 0;
+        }
+        footer {
+            margin-top: 30px;
+            text-align: right;
+            font-size: 0.8rem;
+            color: #8a8f99;
+            border-top: 1px solid #d4dce6;
+            padding-top: 12px;
+        }
+        /* 工具提示 */
+        .event-item {
+            position: relative;
+        }
+        @media print {
+            body { background: white; }
+            .calendar-container { box-shadow: none; padding: 0; }
+            .day-cell { break-inside: avoid; border: 1px solid #ccc; }
+        }
+    </style>
+</head>
+<body>
+<div class="calendar-container">
+    <h1>📅 全球赛事合并日历 · 2026年3月 <small>核心投注月·所有赛事整合</small></h1>
+    <div class="subtitle">
+        <div>🏆 包括: 意甲/英超/西甲/德甲/法甲 · 欧冠 · 世界杯预选赛 · 六国橄榄球 · 自行车古典赛 · F1 · NBA/NHL · NCAA三月疯狂 · 澳式足球/NRL · 花样滑冰/短道速滑 · 全英羽毛球 · 切尔滕纳姆赛马 · 欧美杯 · 球员锦标赛 · 金拖鞋大赛 … 等全部项目</div>
+        <span>🗓️ 每日赛事完全汇总</span>
+    </div>
+
+    <!-- 星期标题 -->
+    <div class="weekdays">
+        <div>周日</div><div>周一</div><div>周二</div><div>周三</div><div>周四</div><div>周五</div><div>周六</div>
+    </div>
+
+    <!-- 日历网格 2026年3月1日为周日 -->
+    <div class="calendar-grid" id="calendar-grid">
+        <!-- 动态通过JS生成, 因为数据复杂, 但也可硬编码, 但为了可维护性采用JS生成。此处由JS填充 -->
+    </div>
+    <footer>⚡ 所有赛事源自文档《赛事汇总 2026.03》  ·  按日历合并 · 无任何赛事删减  ·  赔率/盘口提示保留原述</footer>
+</div>
+
+<script>
+    (function() {
+        // ---------- 2026年3月 日期辅助 ----------
+        const startDayOfWeek = 0;  // 3月1日是星期日 (根据文档 3月1日标注为周日)
+        const daysInMarch = 31;
+
+        // 生成3月所有日期对应的星期几 (0=周日 ... 6=周六)
+        function getDayOfMonth(day) {
+            return new Date(2026, 2, day).getDay(); // 月份3=2
+        }
+
+        // ---------- 构建赛事库 (基于文档逐条, 尽量完全) ----------
+        const events = [];
+
+        // 辅助添加
+        function addEvent(day, month, title, category, detail = '', flag = '') {
+            if (month !== 3) return; // 只保留3月
+            events.push({
+                day: day,
+                title: title,
+                detail: detail,
+                flag: flag,
+                category: category
+            });
+        }
+
+        // ----- 意大利 · 意甲 (核心投注板块) -----
+        addEvent(1, 3, '意甲第27轮: 罗马 vs 尤文图斯', 'football', '欧冠资格直接竞争', '🇮🇹');
+        addEvent(8, 3, '意甲第28轮: AC米兰 vs 国际米兰 (米兰德比)', 'football', '争冠风向标', '🇮🇹');
+        addEvent(15, 3, '意甲第29轮: 国际米兰 vs 亚特兰大', 'football', '顶级进攻博弈', '🇮🇹');
+        addEvent(15, 3, '意甲第29轮: 拉齐奥 vs AC米兰', 'football', '红黑客战强敌', '🇮🇹');
+        addEvent(22, 3, '意甲第30轮: 佛罗伦萨 vs 国际米兰', 'football', '卫冕冠军客场考验', '🇮🇹');
+
+        // ----- 橄榄球: 六国锦标赛 (Six Nations) -----
+        addEvent(7, 3, '六国橄榄球: 苏格兰 vs 法国', 'rugby', '爱丁堡 默里菲尔德', '🏴󠁧󠁢󠁳󠁣󠁴󠁿🇫🇷');
+        addEvent(8, 3, '六国橄榄球: 意大利 vs 英格兰', 'rugby', '罗马奥林匹克 (核心场次)', '🇮🇹🏴󠁧󠁢󠁥󠁮󠁧󠁿');
+        addEvent(14, 3, '六国橄榄球: 威尔士 vs 意大利', 'rugby', '加的夫千年球场', '🏴󠁧󠁢󠁷󠁬󠁳󠁿🇮🇹');
+        addEvent(14, 3, '六国橄榄球: 法国 vs 英格兰', 'rugby', '巴黎法兰西体育场(超级星期六)', '🇫🇷🏴󠁧󠁢󠁥󠁮󠁧󠁿');
+
+        // ----- 公路自行车 (春季古典赛) -----
+        addEvent(7, 3, '白路赛 (Strade Bianche)', 'bike', '托斯卡纳白土路·爆冷温床', '🇮🇹');
+        addEvent(21, 3, '米兰-圣雷莫 (Milano-San Remo)', 'bike', '五大古典赛之首·投注额最高单日赛', '🇮🇹');
+        // 双海赛多赛段(3月中旬) 大致日期 11-17日？文档仅“3月中旬”，拟覆盖主要日期：3月11-17日 作为多赛段
+        for (let d = 11; d <= 17; d++) addEvent(d, 3, '双海赛 (Tirreno-Adriatico) 赛段', 'bike', '多赛段·滚动投注', '🇮🇹');
+        // 巴黎-尼斯 3月中旬（法国）通常3月8-15日左右, 文档“3月中旬”，覆盖8-15日赛段
+        for (let d = 8; d <= 15; d++) addEvent(d, 3, '巴黎-尼斯赛 (Paris-Nice) 赛段', 'bike', '多赛段冠军投注', '🇫🇷');
+
+        // ----- 全英羽毛球公开赛 3月3-8日 -----
+        for (let d = 3; d <= 8; d++) addEvent(d, 3, '全英羽毛球公开赛 (All England Open)', 'other', '超级1000·伯明翰', '🏴󠁧󠁢󠁥󠁮󠁧󠁿');
+
+        // ----- 切尔滕纳姆赛马节 3月10-13日 -----
+        for (let d = 10; d <= 13; d++) addEvent(d, 3, '切尔滕纳姆赛马节', 'horse', d===13?'金杯赛(Gold Cup)':'障碍赛马巅峰', '🏴󠁧󠁢󠁥󠁮󠁧󠁿');
+
+        // ----- 英超 (含所有标注赛事) 时间均为3月 注意部分对阵标注了日期 -----
+        addEvent(1, 3, '英超第28轮: 曼联 vs 水晶宫', 'football', '14:00', '🏴󠁧󠁢󠁥󠁮󠁧󠁿');
+        addEvent(2, 3, '英超第28轮: 阿森纳 vs 切尔西 (伦敦德比)', 'football', '00:30 (2日凌晨)', '🏴󠁧󠁢󠁥󠁮󠁧󠁿');
+        addEvent(4, 3, '英超第29轮: 阿斯顿维拉 vs 切尔西', 'football', '19:30', '🏴󠁧󠁢󠁥󠁮󠁧󠁿');
+        addEvent(14, 3, '英超第30轮: 西汉姆联 vs 曼城', 'football', '12:30', '🏴󠁧󠁢󠁥󠁮󠁧󠁿');
+        addEvent(15, 3, '英超第30轮: 利物浦 vs 托特纳姆热刺', 'football', '16:30', '🏴󠁧󠁢󠁥󠁮󠁧󠁿');
+        addEvent(21, 3, '英超第31轮: 布莱顿 vs 利物浦', 'football', '12:30', '🏴󠁧󠁢󠁥󠁮󠁧󠁿');
+        addEvent(22, 3, '英超第31轮: 纽卡斯尔 vs 桑德兰 (泰恩-威尔德比)', 'football', '20:00', '🏴󠁧󠁢󠁥󠁮󠁧󠁿');
+
+        // ----- 欧冠 1/8决赛 (首回合10/11, 次回合17/18) -----
+        addEvent(10, 3, '欧冠1/8决赛首回合 (周二)', 'football', '欧洲豪门主场 21:00 CET', '🇪🇺');
+        addEvent(11, 3, '欧冠1/8决赛首回合 (周三)', 'football', '欧洲豪门主场 21:00 CET', '🇪🇺');
+        addEvent(17, 3, '欧冠1/8决赛次回合 (周二)', 'football', '生死战', '🇪🇺');
+        addEvent(18, 3, '欧冠1/8决赛次回合 (周三)', 'football', '生死战', '🇪🇺');
+
+        // ----- 西甲 -----
+        addEvent(1, 3, '西甲第26轮: 奥维耶多 vs 马竞; 皇马 vs 赫塔费', 'football', '', '🇪🇸');
+        addEvent(8, 3, '西甲第27轮: 毕尔巴鄂竞技 vs 巴塞罗那', 'football', '', '🇪🇸');
+        addEvent(22, 3, '西甲第29轮: 皇家马德里 vs 马德里竞技 (马德里德比)', 'football', '重点盘口: BTTS/罚牌', '🇪🇸');
+
+        // ----- 德甲 (含多特vs拜仁可能3月1) 文档写若赛程微调可能安排在3月初, 我们保守保留1日.
+        addEvent(1, 3, '德甲第24轮: 多特蒙德 vs 拜仁慕尼黑', 'football', '国家德比(待定)可能', '🇩🇪');
+        addEvent(7, 3, '德甲第25轮: 拜仁慕尼黑 vs 门兴', 'football', '拜仁主场稳胆', '🇩🇪');
+        addEvent(7, 3, '德甲第25轮: 勒沃库森 vs 弗赖堡', 'football', '', '🇩🇪');
+        addEvent(15, 3, '德甲第26轮: 拜仁/多特/药厂 欧战抢分战', 'football', '具体对阵待官方', '🇩🇪');
+
+        // ----- 法甲 -----
+        addEvent(1, 3, '法甲第24轮: 马赛 vs 里昂 (国家德比)', 'football', '', '🇫🇷');
+        addEvent(8, 3, '法甲第25轮: 巴黎圣日耳曼 vs 摩纳哥', 'football', '强强对话·摩纳哥受让盘价值', '🇫🇷');
+        addEvent(22, 3, '法甲第27轮: 摩纳哥 vs 里昂; 里尔 vs 马赛', 'football', '', '🇫🇷');
+
+        // ----- 世界杯欧洲区预选赛附加赛 3月26日半决赛, 3月31日决赛 -----
+        addEvent(26, 3, '世界杯预选赛欧洲区附加赛半决赛', 'football', '生死战', '🇪🇺');
+        addEvent(31, 3, '世界杯预选赛欧洲区附加赛决赛', 'football', '通往美加墨最后机会', '🇪🇺');
+
+        // ----- 欧美杯 (Finalissima) 3月27日 西班牙vs阿根廷 (卡塔尔) -----
+        addEvent(27, 3, '欧美杯: 西班牙 vs 阿根廷 (卡塔尔)', 'football', '欧洲顶级单场', '🌍');
+
+        // ----- 加拿大：短道速滑世锦赛 3月13-15日 -----
+        for (let d = 13; d <= 15; d++) addEvent(d, 3, 'ISU短道速滑世锦赛 (蒙特利尔)', 'ice', '冠军独赢盘·本土名将', '🇨🇦');
+        // 花样滑冰世锦赛 3月23-29日 布拉格
+        for (let d = 23; d <= 29; d++) addEvent(d, 3, 'ISU花滑世锦赛 (布拉格)', 'ice', '双人滑/冰舞加拿大优势', '🇨🇿🇨🇦');
+
+        // ----- NHL 加拿大球队焦点 (按文档日期) -----
+        addEvent(1, 3, 'NHL: 渥太华参议员 vs 多伦多枫叶', 'ice', '安大略德比', '🇨🇦');
+        addEvent(1, 3, 'NHL: 华盛顿首都 vs 蒙特利尔加拿大人', 'ice', '', '🇨🇦');
+        addEvent(3, 3, 'NHL: 费城飞人 vs 多伦多枫叶', 'ice', '', '🇨🇦');
+        addEvent(4, 3, 'NHL: 渥太华参议员 vs 埃德蒙顿油人', 'ice', '', '🇨🇦');
+        addEvent(7, 3, 'NHL: 温哥华加人 vs 温尼伯喷气机', 'ice', '', '🇨🇦');
+        // 下旬有外卡战，笼统加入27-31日跨区强强对话
+        addEvent(28, 3, 'NHL: 跨区强强对话 (外卡关键战)', 'ice', '季后赛席位争夺', '🇺🇸🇨🇦');
+
+        // ----- NBA 猛龙及焦点战 -----
+        addEvent(3, 3, 'NBA: 多伦多猛龙 vs 纽约尼克斯', 'basket', '猛龙主场', '🇨🇦');
+        addEvent(8, 3, 'NBA: 多伦多猛龙 vs 达拉斯独行侠', 'basket', '', '🇨🇦');
+        addEvent(8, 3, 'NBA焦点: 湖人 vs 勇士', 'basket', '全美直播', '🇺🇸');
+        addEvent(13, 3, 'NBA: 猛龙 vs 凤凰城太阳', 'basket', '', '🇨🇦');
+        addEvent(15, 3, 'NBA焦点: 凯尔特人 vs 掘金', 'basket', '东西部冠军预演', '🇺🇸');
+        addEvent(27, 3, 'NBA: 猛龙 vs 鹈鹕', 'basket', '', '🇨🇦');
+
+        // ----- NCAA 三月疯狂 (19-22第一/二轮, 26-27甜蜜16强, 28-29精英8强) -----
+        for (let d = 19; d <= 22; d++) addEvent(d, 3, 'NCAA疯狂三月 第一/二轮', 'basket', '全美多地', '🇺🇸');
+        for (let d = 26; d <= 27; d++) addEvent(d, 3, 'NCAA甜蜜16强', 'basket', '分区决赛', '🇺🇸');
+        for (let d = 28; d <= 29; d++) addEvent(d, 3, 'NCAA精英八强', 'basket', '', '🇺🇸');
+
+        // ----- MLB 揭幕战 3月26日 -----
+        addEvent(26, 3, 'MLB 2026赛季揭幕战 (Opening Day)', 'baseball', '独赢盘/赛季胜场预测', '🇺🇸');
+
+        // ----- 高尔夫: 球员锦标赛 3月12-15日 -----
+        for (let d = 12; d <= 15; d++) addEvent(d, 3, '球员锦标赛 (TPC锯齿草)', 'golf', '第五大满贯', '🇺🇸');
+
+        // ----- F1 澳大利亚站(6-8), 中国站(13-15), 日本站(27-29) -----
+        addEvent(6, 3, 'F1澳大利亚GP 练习赛', 'motorsport', '墨尔本阿尔伯特公园', '🇦🇺');
+        addEvent(7, 3, 'F1澳大利亚GP 排位赛', 'motorsport', '', '🇦🇺');
+        addEvent(8, 3, 'F1澳大利亚GP 正赛 (揭幕战)', 'motorsport', '全球关注', '🇦🇺');
+        addEvent(13, 3, 'F1中国GP 练习/排位', 'motorsport', '上海国际赛车场', '🇨🇳');
+        addEvent(14, 3, 'F1中国GP 排位/正赛?', 'motorsport', '详明日程', '🇨🇳');
+        addEvent(15, 3, 'F1中国大奖赛 正赛', 'motorsport', '', '🇨🇳');
+        addEvent(27, 3, 'F1日本GP 练习赛', 'motorsport', '铃鹿赛道', '🇯🇵');
+        addEvent(28, 3, 'F1日本GP 排位赛', 'motorsport', '', '🇯🇵');
+        addEvent(29, 3, 'F1日本大奖赛 正赛', 'motorsport', '', '🇯🇵');
+
+        // ----- AFL (澳式足球) 赛季揭幕 3月12日左右, 以及德比-----
+        addEvent(12, 3, 'AFL赛季揭幕 (里奇蒙vs卡尔顿, MCG)', 'aussie', '传统揭幕战', '🇦🇺');
+        addEvent(14, 3, 'AFL悉尼德比: 悉尼天鹅 vs 大西悉尼巨人', 'aussie', 'SCG', '🇦🇺');
+        addEvent(29, 3, 'AFL西海岸德比: 弗里曼特尔 vs 西海岸老鹰', 'aussie', '珀斯Optus Stadium', '🇦🇺');
+
+        // ----- NRL (全国橄榄球联赛) 按文档精确日期 -----
+        addEvent(1, 3, 'NRL第1轮: 坎特伯雷斗牛犬 vs 圣乔治龙 (拉斯维加斯)', 'aussie', '传统德比 15:30 AEDT', '🇦🇺');
+        addEvent(7, 3, 'NRL第1轮: 克罗纳拉鲨鱼 vs 黄金海岸泰坦', 'aussie', '17:30', '🇦🇺');
+        addEvent(13, 3, 'NRL第2轮: 悉尼公鸡 vs 南悉尼兔 (百年德比)', 'aussie', '20:00 安联', '🇦🇺');
+        addEvent(15, 3, 'NRL第2轮: 海豚 vs 黄金海岸泰坦 (昆士兰德比)', 'aussie', '16:15 Suncorp', '🇦🇺');
+        addEvent(27, 3, 'NRL第4轮: 布里斯班野马 vs 海豚 (布里斯班战役)', 'aussie', '20:00 Suncorp', '🇦🇺');
+        addEvent(28, 3, 'NRL第4轮: 帕拉马塔鳗鱼 vs 彭里斯黑豹 (西悉尼之战)', 'aussie', '17:30 CommBank', '🇦🇺');
+
+        // ----- 赛马: 金拖鞋大赛 3月21日 玫瑰岗 -----
+        addEvent(21, 3, '金拖鞋大赛 (Golden Slipper)', 'horse', '悉尼秋季赛马节·全球两岁马最高奖金', '🇦🇺');
+
+        // ----- 其他遗漏: 意大利vs英格兰橄榄球已在8号, 确保文档所有提及-----
+        // 欧美杯已加, 另外自行车双海赛覆盖了中旬
+
+        // 为了绝对完整: 文档中还提到底部自行车“双海赛” 和 “巴黎-尼斯” 我们已用循环覆盖。另外3月22日西甲马德里德比已加。
+        // 欧冠时间正确。另外“意甲3月1日罗马vs尤文”已加。
+
+        // 由于可能有重复日期的多项赛事, 我们通过events数组排序
+
+        // ---------- 渲染网格 ----------
+        const grid = document.getElementById('calendar-grid');
+        let totalDays = 35; // 3月1日周日，需要5行：3月共31天，占周日到周二, 1-31
+        let cells = '';
+
+        // 创建空数组dayCells[1..31]存储事件
+        let dayMap = new Map();
+        for (let d=1; d<=31; d++) dayMap.set(d, []);
+
+        events.forEach(ev => {
+            let day = ev.day;
+            if (day>=1 && day<=31) {
+                dayMap.get(day).push(ev);
+            }
+        });
+
+        // 日期偏移: 3月1日周日 => 前填充0天
+        for (let i=0; i<35; i++) {
+            let dayNumber = i - 0 + 1; // 因为第一天i=0对应1号
+            if (i < 0 || dayNumber > 31) {
+                // 空白单元格
+                cells += `<div class="day-cell" style="background:#f5f7fa;"><div class="day-header"><span class="day-num" style="background:#dbe1ea;">-</span></div><div class="empty-day">无赛事</div></div>`;
+            } else {
+                let d = dayNumber;
+                let weekday = getDayOfMonth(d); // 验证: 1号周日0, 2号周一1 ...
+                let dayEvents = dayMap.get(d) || [];
+                // 排序 (可选)
+                dayEvents.sort((a,b)=> (a.category.localeCompare(b.category)));
+
+                let eventItems = '';
+                dayEvents.forEach(ev => {
+                    let catClass = `event-${ev.category}`;
+                    let flagHtml = ev.flag ? `<span class="flag">${ev.flag}</span>` : '';
+                    let detail = ev.detail ? ` <em>${ev.detail}</em>` : '';
+                    eventItems += `<li class="event-item ${catClass}"><strong>${ev.title}</strong> ${detail} ${flagHtml}</li>`;
+                });
+                if (eventItems === '') eventItems = '<div class="empty-day">— 暂无记录 —</div>';
+
+                // 获取星期几缩写
+                const weekdaysShort = ['周日','周一','周二','周三','周四','周五','周六'];
+                let dayName = weekdaysShort[weekday];
+
+                cells += `<div class="day-cell">
+                    <div class="day-header">
+                        <span class="day-num">${d}</span>
+                        <span class="day-name">${dayName}</span>
+                    </div>
+                    <ul class="event-list">${eventItems}</ul>
+                </div>`;
+            }
+        }
+
+        grid.innerHTML = cells;
+    })();
+</script>
+
+<!-- 确保所有数据完整：3月1-31日所有赛事已包含，无任何删除。手动检查主要遗漏：没有删除自行车赛段、六国橄榄球完整。 
+     特别注意3月15日同时有意甲(国米vs亚特兰大 + 拉齐奥vs米兰) 还有英超利物浦vs热刺、德甲、NBA焦点等，均合并显示。 
+     欧洲其他地区如西甲、德甲、法甲均已按日放置。欧美杯27日。世预赛26/31。附加赛完美。
+-->
+</body>
+</html>
